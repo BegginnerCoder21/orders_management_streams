@@ -1,0 +1,3 @@
+rootProject.name = 'orders-management-streams'
+
+include(':orders-domain', ':orders-domain-app')
