@@ -1,8 +1,13 @@
 package com.learnkafkastreams.service;
 
+import com.learnkafkastreams.domain.OrderCountPerStoreDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 
 import static com.learnkafkastreams.util.ProducerUtil.*;
 
@@ -16,9 +21,16 @@ public class OrderService {
         this.orderStoreService = orderStoreService;
     }
 
-    public void getOrdersCount(String orderType) {
+    public List<OrderCountPerStoreDTO> getOrdersCount(String orderType) {
        var orderTypeCount =  this.getOrderTypeCount(orderType);
-       log.info("orderTypeCount: {}", orderTypeCount);
+       var orders = orderTypeCount.all();
+
+       var spliterator = Spliterators.spliteratorUnknownSize(orders, 0);
+
+       return StreamSupport
+               .stream(spliterator, false)
+               .map(keyValue -> new OrderCountPerStoreDTO(keyValue.key, keyValue.value))
+               .toList();
     }
 
     public ReadOnlyKeyValueStore<String, Long> getOrderTypeCount(String storeName) {

@@ -23,7 +23,8 @@ public class OrdersController {
     @GetMapping("count/{order_type}")
     public ResponseEntity<List<OrderCountPerStoreDTO>> getOrderCount(@PathVariable("order_type") String orderType)
     {
-        this.orderService.getOrdersCount(orderType);
-        return null;
+        List<OrderCountPerStoreDTO> orderCountPerStoreList = this.orderService.getOrdersCount(orderType);
+
+        return ResponseEntity.ok(orderCountPerStoreList);
     }
 }

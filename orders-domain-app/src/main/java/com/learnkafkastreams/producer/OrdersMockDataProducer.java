@@ -26,11 +26,11 @@ public class OrdersMockDataProducer {
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
 //        publishOrders(objectMapper, buildOrders());
-//        publishBulkOrders(objectMapper);
+        publishBulkOrders(objectMapper);
 
         //Future and Old Records
 //         publishFutureRecords(objectMapper);
-        publishExpiredRecords(objectMapper);
+//        publishExpiredRecords(objectMapper);
     }
 
     private static void publishFutureRecords(ObjectMapper objectMapper) {
@@ -120,7 +120,7 @@ public class OrdersMockDataProducer {
     private static void publishBulkOrders(ObjectMapper objectMapper) throws InterruptedException {
 
         int count = 0;
-        while (count < 100) {
+        while (count < 300) {
             var orders = buildOrders();
             publishOrders(objectMapper, orders);
             sleep(1000);
