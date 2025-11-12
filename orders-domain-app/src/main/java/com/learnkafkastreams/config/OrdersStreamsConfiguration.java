@@ -1,10 +1,13 @@
 package com.learnkafkastreams.config;
 
+import com.learnkafkastreams.domain.Order;
 import com.learnkafkastreams.exceptionhandler.StreamsProcessorCustomErrorHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.KStream;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +20,7 @@ import org.springframework.kafka.listener.ConsumerRecordRecoverer;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.streams.RecoveringDeserializationExceptionHandler;
 
+import static com.learnkafkastreams.topology.OrdersTopology.orderTopology;
 import static com.learnkafkastreams.util.ProducerUtil.ORDERS;
 import static com.learnkafkastreams.util.ProducerUtil.STORES;
 
@@ -34,13 +38,19 @@ public class OrdersStreamsConfiguration {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    @Bean
+    public KStream<String, Order> ordersStream(StreamsBuilder streamsBuilder) {
+        orderTopology(streamsBuilder);
+        return streamsBuilder.stream(ORDERS);
+    }
+
     @Bean(name = KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME)
     public KafkaStreamsConfiguration kStreamConfig() {
 
         var streamProperties = kafkaProperties.buildStreamsProperties(null);
 
         streamProperties.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, RecoveringDeserializationExceptionHandler.class);
-        streamProperties.put(RecoveringDeserializationExceptionHandler.KSTREAM_DESERIALIZATION_RECOVERER, consumerRecordRecoverer);
+        streamProperties.put(RecoveringDeserializationExceptionHandler.KSTREAM_DESERIALIZATION_RECOVERER, recoverer());
 
         return new KafkaStreamsConfiguration(streamProperties);
     }
