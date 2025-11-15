@@ -1,5 +1,6 @@
 package com.learnkafkastreams.controller;
 
+import com.learnkafkastreams.domain.AllOrdersCountPerStoreDTO;
 import com.learnkafkastreams.domain.OrderCountPerStoreDTO;
 import com.learnkafkastreams.service.OrderService;
 import org.springframework.http.ResponseEntity;
@@ -32,4 +33,15 @@ public class OrdersController {
 
         return ResponseEntity.ok(orderCountPerStoreList);
     }
+
+    @GetMapping("count/")
+    public ResponseEntity<List<AllOrdersCountPerStoreDTO>> getAllOrdersCount()
+    {
+        List<AllOrdersCountPerStoreDTO> allOrdersCountPerStoreDTOS =  this.orderService.getAllOrderCount();
+
+        return ResponseEntity.ok(allOrdersCountPerStoreDTOS);
+    }
+
+
+
 }
