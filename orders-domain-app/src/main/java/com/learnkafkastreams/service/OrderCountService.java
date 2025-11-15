@@ -1,8 +1,6 @@
 package com.learnkafkastreams.service;
 
-import com.learnkafkastreams.domain.AllOrdersCountPerStoreDTO;
-import com.learnkafkastreams.domain.OrderCountPerStoreDTO;
-import com.learnkafkastreams.domain.OrderType;
+import com.learnkafkastreams.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.state.KeyValueIterator;
@@ -17,15 +15,17 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.learnkafkastreams.domain.OrderType.GENERAL;
+import static com.learnkafkastreams.domain.OrderType.RESTAURANT;
 import static com.learnkafkastreams.util.ProducerUtil.*;
 
 @Slf4j
 @Service
-public class OrderService {
+public class OrderCountService {
 
     private final OrderStoreService orderStoreService;
 
-    public OrderService(OrderStoreService orderStoreService) {
+    public OrderCountService(OrderStoreService orderStoreService) {
         this.orderStoreService = orderStoreService;
     }
 
@@ -34,7 +34,7 @@ public class OrderService {
 
         KeyValueIterator<String, Long> orders = orderTypeCount.all();
 
-       Spliterator<KeyValue<String, Long>> spliterator = Spliterators.spliteratorUnknownSize(orders, 2);
+       Spliterator<KeyValue<String, Long>> spliterator = Spliterators.spliteratorUnknownSize(orders, 0);
 
        return StreamSupport
                .stream(spliterator, false)
@@ -70,12 +70,12 @@ public class OrderService {
 
         List<AllOrdersCountPerStoreDTO> generalOrderCount =  this.getOrdersCount(GENERAL_ORDERS)
                 .stream()
-                .map((orderCountPerStoreDTO -> mapper.apply(orderCountPerStoreDTO, OrderType.GENERAL)))
+                .map((orderCountPerStoreDTO -> mapper.apply(orderCountPerStoreDTO, GENERAL)))
                 .toList();
 
         List<AllOrdersCountPerStoreDTO> restaurantOrderCount =  this.getOrdersCount(RESTAURANT_ORDERS)
                 .stream()
-                .map((orderCountPerStoreDTO -> mapper.apply(orderCountPerStoreDTO, OrderType.RESTAURANT)))
+                .map((orderCountPerStoreDTO -> mapper.apply(orderCountPerStoreDTO, RESTAURANT)))
                 .toList();
 
         return Stream.of(generalOrderCount, restaurantOrderCount).flatMap(Collection::stream).toList();
