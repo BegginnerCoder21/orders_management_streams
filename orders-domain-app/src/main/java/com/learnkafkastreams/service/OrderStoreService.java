@@ -4,6 +4,7 @@ import com.learnkafkastreams.domain.TotalRevenue;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
+import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,18 @@ public class OrderStoreService {
                                     QueryableStoreTypes.keyValueStore()
                             )
                     );
+    }
+
+    public ReadOnlyWindowStore<String, Long> orderStoreCountWindow(String storeName) {
+
+        return Objects.requireNonNull(this.streamsBuilderFactoryBean
+                        .getKafkaStreams())
+                .store(StoreQueryParameters.
+                        fromNameAndType(
+                                storeName,
+                                QueryableStoreTypes.windowStore()
+                        )
+                );
     }
 
     public ReadOnlyKeyValueStore<String, TotalRevenue> orderStoreRevenue(String storeName) {

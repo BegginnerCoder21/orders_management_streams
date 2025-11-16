@@ -43,11 +43,11 @@ public class OrderRevenueService {
 
         return StreamSupport
                 .stream(spliterator, false)
-                .map(keyValue -> new OrderRevenueDTO(keyValue.key, this.mapOrderType(orderType), keyValue.value))
+                .map(keyValue -> new OrderRevenueDTO(keyValue.key, mapOrderType(orderType), keyValue.value))
                 .toList();
     }
 
-    private OrderType mapOrderType(String orderType) {
+    public static OrderType mapOrderType(String orderType) {
 
         return switch (orderType) {
             case GENERAL_ORDERS -> GENERAL;
