@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Spliterator;
@@ -35,9 +36,14 @@ public class OrderCountWindowService {
 
         KeyValueIterator<Windowed<String>, Long>  orders = orderTypeCountWindow.all();
 
+        OrderType orderTypeWindow = mapOrderType(orderType);
+
+        return this.mapToOrdersCountPerStoreByWindowsDTOS(orders, orderTypeWindow);
+    }
+
+    private List<OrdersCountPerStoreByWindowsDTO> mapToOrdersCountPerStoreByWindowsDTOS(KeyValueIterator<Windowed<String>, Long> orders, OrderType orderTypeWindow) {
         Spliterator<KeyValue<Windowed<String>, Long>> spliterator = Spliterators.spliteratorUnknownSize(orders, 0);
 
-        OrderType orderTypeWindow = mapOrderType(orderType);
 
         return StreamSupport
                 .stream(spliterator, false)
@@ -46,8 +52,8 @@ public class OrderCountWindowService {
                         keyValue.value,
                         orderTypeWindow,
                         LocalDateTime.ofInstant(keyValue.key.window().startTime(), ZoneId.of("GMT")),
-                        LocalDateTime.ofInstant( keyValue.key.window().endTime(), ZoneId.of("GMT"))
-                        ))
+                        LocalDateTime.ofInstant(keyValue.key.window().endTime(), ZoneId.of("GMT"))
+                ))
                 .toList();
     }
 
@@ -69,4 +75,23 @@ public class OrderCountWindowService {
                 .toList();
     }
 
+    public List<OrdersCountPerStoreByWindowsDTO> getAllOrdersCountWindow(LocalDateTime fromTime, LocalDateTime toTime) {
+
+        var fromTimeToInstant =  fromTime.toInstant(ZoneOffset.UTC);
+        var toTimeToInstant = toTime.toInstant(ZoneOffset.UTC);
+
+        KeyValueIterator<Windowed<String>, Long> allGeneralOrdersCountByWindow =  this.getOrderTypeCountWindow(GENERAL_ORDERS)
+                .backwardFetchAll(fromTimeToInstant, toTimeToInstant);
+
+        List<OrdersCountPerStoreByWindowsDTO> generalOrdersCountPerStoreByWindowsDTO =  this.mapToOrdersCountPerStoreByWindowsDTOS(allGeneralOrdersCountByWindow, OrderType.GENERAL);
+
+        KeyValueIterator<Windowed<String>, Long> allRestaurantOrdersCountByWindow =  this.getOrderTypeCountWindow(RESTAURANT_ORDERS)
+                .backwardFetchAll(fromTimeToInstant, toTimeToInstant);
+
+        List<OrdersCountPerStoreByWindowsDTO> restaurantOrdersCountPerStoreByWindowDTO = this.mapToOrdersCountPerStoreByWindowsDTOS(allRestaurantOrdersCountByWindow, OrderType.RESTAURANT);
+
+        return Stream.of(generalOrdersCountPerStoreByWindowsDTO, restaurantOrdersCountPerStoreByWindowDTO)
+                .flatMap(Collection::stream)
+                .toList();
+    }
 }

@@ -2,12 +2,11 @@ package com.learnkafkastreams.controller;
 
 import com.learnkafkastreams.domain.OrdersCountPerStoreByWindowsDTO;
 import com.learnkafkastreams.service.OrderCountWindowService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -30,8 +29,18 @@ public class OrdersWindowController {
     }
 
     @GetMapping("count/")
-    public ResponseEntity<List<OrdersCountPerStoreByWindowsDTO>> getAllOrderCountWindow()
+    public ResponseEntity<List<OrdersCountPerStoreByWindowsDTO>> getAllOrderCountWindow(
+            @RequestParam(value = "from_time", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromTime,
+            @RequestParam(value = "to_time", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toTime
+            )
     {
+
+        if(fromTime != null && toTime != null)
+        {
+            List<OrdersCountPerStoreByWindowsDTO> ordersCountPerStoreByWindowsDTOS =  this.orderCountWindowService.getAllOrdersCountWindow(fromTime, toTime);
+
+            return ResponseEntity.ok(ordersCountPerStoreByWindowsDTOS);
+        }
 
         List<OrdersCountPerStoreByWindowsDTO> ordersCountPerStoreByWindowsDTOS = this.orderCountWindowService.getAllOrdersCountWindow();
 
