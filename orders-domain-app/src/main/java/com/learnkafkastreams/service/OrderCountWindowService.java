@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collection;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.learnkafkastreams.service.OrderRevenueService.mapOrderType;
@@ -57,4 +59,14 @@ public class OrderCountWindowService {
             default -> throw new IllegalStateException("Option de commande non valide");
         };
     }
+    public List<OrdersCountPerStoreByWindowsDTO> getAllOrdersCountWindow()
+    {
+        List<OrdersCountPerStoreByWindowsDTO> allGeneralOrdersCountWindow = this.getOrdersCountWindow(GENERAL_ORDERS);
+        List<OrdersCountPerStoreByWindowsDTO> allRestaurantOrderCountWindow = this.getOrdersCountWindow(RESTAURANT_ORDERS);
+
+        return Stream.of(allGeneralOrdersCountWindow, allRestaurantOrderCountWindow)
+                .flatMap(Collection::stream)
+                .toList();
+    }
+
 }

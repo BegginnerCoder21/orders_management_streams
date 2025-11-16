@@ -28,4 +28,13 @@ public class OrdersWindowController {
 
         return ResponseEntity.ok(ordersCountPerStoreByWindowsDTOS);
     }
+
+    @GetMapping("count/")
+    public ResponseEntity<List<OrdersCountPerStoreByWindowsDTO>> getAllOrderCountWindow()
+    {
+
+        List<OrdersCountPerStoreByWindowsDTO> ordersCountPerStoreByWindowsDTOS = this.orderCountWindowService.getAllOrdersCountWindow();
+
+        return ResponseEntity.ok(ordersCountPerStoreByWindowsDTOS);
+    }
 }
