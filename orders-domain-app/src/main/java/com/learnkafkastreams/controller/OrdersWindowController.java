@@ -1,7 +1,9 @@
 package com.learnkafkastreams.controller;
 
 import com.learnkafkastreams.domain.OrdersCountPerStoreByWindowsDTO;
+import com.learnkafkastreams.domain.OrdersRevenuePerStoreByWindowsDTO;
 import com.learnkafkastreams.service.OrderCountWindowService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/orders/windows/")
 public class OrdersWindowController {
@@ -44,6 +47,15 @@ public class OrdersWindowController {
 
         List<OrdersCountPerStoreByWindowsDTO> ordersCountPerStoreByWindowsDTOS = this.orderCountWindowService.getAllOrdersCountWindow();
 
+        return ResponseEntity.ok(ordersCountPerStoreByWindowsDTOS);
+    }
+
+    @GetMapping("revenue/{order_type}")
+    public ResponseEntity<List<OrdersRevenuePerStoreByWindowsDTO>> getOrderRevenueWindow(@PathVariable("order_type") String orderType)
+    {
+
+        List<OrdersRevenuePerStoreByWindowsDTO> ordersCountPerStoreByWindowsDTOS = this.orderCountWindowService.getOrdersRevenueWindow(orderType);
+        log.info("ordersCountPerStoreByWindowsDTOS: {}", ordersCountPerStoreByWindowsDTOS);
         return ResponseEntity.ok(ordersCountPerStoreByWindowsDTOS);
     }
 }

@@ -2,6 +2,9 @@ package com.learnkafkastreams.service;
 
 import com.learnkafkastreams.domain.OrderType;
 import com.learnkafkastreams.domain.OrdersCountPerStoreByWindowsDTO;
+import com.learnkafkastreams.domain.OrdersRevenuePerStoreByWindowsDTO;
+import com.learnkafkastreams.domain.TotalRevenue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.KeyValueIterator;
@@ -21,6 +24,7 @@ import java.util.stream.StreamSupport;
 import static com.learnkafkastreams.service.OrderRevenueService.mapOrderType;
 import static com.learnkafkastreams.util.ProducerUtil.*;
 
+@Slf4j
 @Service
 public class OrderCountWindowService {
 
@@ -93,5 +97,38 @@ public class OrderCountWindowService {
         return Stream.of(generalOrdersCountPerStoreByWindowsDTO, restaurantOrdersCountPerStoreByWindowDTO)
                 .flatMap(Collection::stream)
                 .toList();
+    }
+
+    public List<OrdersRevenuePerStoreByWindowsDTO> getOrdersRevenueWindow(String orderType) {
+
+        ReadOnlyWindowStore<String, TotalRevenue> orderTypeRevenueWindow =  this.getOrderTypeRevenueWindow(orderType);
+
+        KeyValueIterator<Windowed<String>, TotalRevenue>  orders = orderTypeRevenueWindow.all();
+
+        OrderType orderTypeWindow = mapOrderType(orderType);
+
+        Spliterator<KeyValue<Windowed<String>, TotalRevenue>> spliterator = Spliterators.spliteratorUnknownSize(orders, 0);
+
+
+        return StreamSupport
+                .stream(spliterator, false)
+                .map(keyValue -> new OrdersRevenuePerStoreByWindowsDTO(
+                        keyValue.key.key(),
+                        keyValue.value,
+                        orderTypeWindow,
+                        LocalDateTime.ofInstant(keyValue.key.window().startTime(), ZoneId.of("GMT")),
+                        LocalDateTime.ofInstant(keyValue.key.window().endTime(), ZoneId.of("GMT"))
+                ))
+                .toList();
+    }
+
+    private ReadOnlyWindowStore<String, TotalRevenue> getOrderTypeRevenueWindow(String storeName) {
+
+        log.info("getOrderTypeRevenueWindow : {}", storeName);
+        return switch (storeName) {
+            case GENERAL_ORDERS -> this.orderStoreService.orderStoreRevenueByWindow(GENERAL_ORDERS_REVENUE_WINDOWS);
+            case RESTAURANT_ORDERS -> this.orderStoreService.orderStoreRevenueByWindow(RESTAURANT_ORDERS_REVENUE_WINDOWS);
+            default -> throw new IllegalStateException("Option de commande non valide");
+        };
     }
 }

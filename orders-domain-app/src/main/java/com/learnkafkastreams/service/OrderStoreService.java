@@ -54,4 +54,15 @@ public class OrderStoreService {
                         )
                 );
     }
+
+    public ReadOnlyWindowStore<String, TotalRevenue> orderStoreRevenueByWindow(String storeName ) {
+        return Objects.requireNonNull(this.streamsBuilderFactoryBean
+                        .getKafkaStreams())
+                .store(StoreQueryParameters.
+                        fromNameAndType(
+                                storeName,
+                                QueryableStoreTypes.windowStore()
+                        )
+                );
+    }
 }
