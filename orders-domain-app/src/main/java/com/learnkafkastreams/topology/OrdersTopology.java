@@ -24,7 +24,6 @@ import static com.learnkafkastreams.util.ProducerUtil.*;
 @Slf4j
 public class OrdersTopology {
 
-    private OrdersTopology(){}
 
     public static void orderTopology(StreamsBuilder streamsBuilder) {
 
