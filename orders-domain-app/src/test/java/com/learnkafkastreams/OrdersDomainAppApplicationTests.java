@@ -9,5 +9,4 @@ class OrdersDomainAppApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
