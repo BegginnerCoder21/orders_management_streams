@@ -28,8 +28,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.learnkafkastreams.util.ProducerUtil.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = OrdersDomainAppApplication.class)
 @EmbeddedKafka(topics = {ORDERS, STORES})
@@ -82,19 +82,29 @@ class OrdersTopologyIntegrationTest {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
-                .until( ()-> {
-                    var generalGeneralCountStore = this.orderCountService.getOrdersCount(GENERAL_ORDERS);
-                    log.info("general_orders_count_test: {}", generalGeneralCountStore);
-                    return generalGeneralCountStore.size();
-                }, equalTo(1));
+                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS).size(), equalTo(1));
 
         var generalOrderCountStore = this.orderCountService.getOrdersCount(GENERAL_ORDERS);
 
-        assertEquals(1, generalOrderCountStore.getFirst().orderCount());
-        assertEquals("store_1234", generalOrderCountStore.getFirst().locationId());
+        assertThat(generalOrderCountStore.getFirst().orderCount()).isEqualTo(1);
+        assertThat(generalOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
+//        assertEquals(1, generalOrderCountStore.getFirst().orderCount());
+//        assertEquals("store_1234", generalOrderCountStore.getFirst().locationId());
 
+        Awaitility
+                .await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollDelay(Duration.ofSeconds(1))
+                .ignoreExceptions()
+                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS).size(), equalTo(1));
+
+        var restaurantOrderCountStore = this.orderCountService.getOrdersCount(RESTAURANT_ORDERS);
+
+        assertThat(restaurantOrderCountStore.getFirst().orderCount()).isEqualTo(1);
+        assertThat(restaurantOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
 
     }
+
 
     private void publishOrders()
     {
