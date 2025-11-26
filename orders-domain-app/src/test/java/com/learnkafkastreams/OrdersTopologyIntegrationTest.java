@@ -2,11 +2,9 @@ package com.learnkafkastreams;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.learnkafkastreams.domain.Order;
-import com.learnkafkastreams.domain.OrderLineItem;
-import com.learnkafkastreams.domain.OrderRevenueDTO;
-import com.learnkafkastreams.domain.OrderType;
+import com.learnkafkastreams.domain.*;
 import com.learnkafkastreams.service.OrderCountService;
+import com.learnkafkastreams.service.OrderCountWindowService;
 import com.learnkafkastreams.service.OrderRevenueService;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
@@ -60,6 +58,9 @@ class OrdersTopologyIntegrationTest {
 
     @Autowired
     OrderRevenueService orderRevenueService;
+
+    @Autowired
+    OrderCountWindowService orderCountWindowService;
 
     @BeforeEach
     void setUp()
@@ -184,6 +185,50 @@ class OrdersTopologyIntegrationTest {
 
     }
 
+    @Test
+    void orderRevenue_multipleOrdersByWindows()
+    {
+        //given
+        publishOrders();
+        publishOrders();
+        publishOrders();
+
+        //when
+
+        //then
+        Awaitility
+                .await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollDelay(Duration.ofSeconds(1))
+                .ignoreExceptions()
+                .until( ()-> this.orderCountWindowService.getOrdersRevenueWindow(GENERAL_ORDERS).size(), equalTo(1));
+
+        var generalOrderCountStore = this.orderCountWindowService.getOrdersRevenueWindow(GENERAL_ORDERS);
+
+        assertThat(generalOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.GENERAL);
+        assertThat(generalOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
+        assertThat(generalOrderCountStore.getFirst().totalRevenue().runningRevenue()).isEqualTo(new BigDecimal("81.00"));
+
+        Awaitility
+                .await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollDelay(Duration.ofSeconds(1))
+                .ignoreExceptions()
+                .until( ()-> this.orderCountWindowService.getOrdersRevenueWindow(RESTAURANT_ORDERS).size(), equalTo(1));
+
+        List<OrdersRevenuePerStoreByWindowsDTO> restaurantOrderCountStore = this.orderCountWindowService.getOrdersRevenueWindow(RESTAURANT_ORDERS);
+
+        var expectedStartTime =LocalDateTime.parse("2025-11-26T22:10:00");
+        var expectedEndTime =LocalDateTime.parse("2025-11-26T22:10:15");
+
+        assertThat(restaurantOrderCountStore.getFirst().startWindow()).isEqualTo(expectedStartTime);
+        assertThat(restaurantOrderCountStore.getFirst().endWindow()).isEqualTo(expectedEndTime);
+        assertThat(restaurantOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.RESTAURANT);
+        assertThat(restaurantOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
+        assertThat(restaurantOrderCountStore.getFirst().totalRevenue().runningRevenue()).isEqualTo(new BigDecimal("45.00"));
+
+    }
+
     private void publishOrders()
     {
         orders()
@@ -221,7 +266,7 @@ class OrdersTopologyIntegrationTest {
                 OrderType.GENERAL,
                 orderItems,
 //                LocalDateTime.now()
-                LocalDateTime.parse("2025-11-23T11:10:01")
+                LocalDateTime.parse("2025-11-26T22:10:01")
                 //LocalDateTime.now(ZoneId.of("UTC"))
         );
         var keyValue1 = KeyValue.pair(order1.orderId().toString(), order1);
@@ -231,7 +276,7 @@ class OrdersTopologyIntegrationTest {
                 OrderType.RESTAURANT,
                 orderItemsRestaurant,
 //                LocalDateTime.now()
-                LocalDateTime.parse("2025-11-23T11:10:01")
+                LocalDateTime.parse("2025-11-26T22:10:01")
                 //LocalDateTime.now(ZoneId.of("UTC"))
         );
         var keyValue2 = KeyValue.pair(order2.orderId().toString(), order2);
