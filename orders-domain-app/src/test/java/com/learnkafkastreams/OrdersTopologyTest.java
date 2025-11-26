@@ -183,7 +183,7 @@ class OrdersTopologyTest {
                 LocalDateTime.parse("2025-11-23T11:10:01")
                 //LocalDateTime.now(ZoneId.of("UTC"))
         );
-        var keyValue1 = KeyValue.pair(order1.locationId(), order1);
+        var keyValue1 = KeyValue.pair(order1.orderId().toString(), order1);
 
         var order2 = new Order(54321, "store_1234",
                 new BigDecimal("15.00"),
@@ -193,33 +193,11 @@ class OrdersTopologyTest {
                 LocalDateTime.parse("2025-11-23T11:10:01")
                 //LocalDateTime.now(ZoneId.of("UTC"))
         );
-        var keyValue2 = KeyValue.pair(order2.locationId(), order2);
-
-        var order3 = new Order(12345, "store_4567",
-                new BigDecimal("27.00"),
-                OrderType.GENERAL,
-                orderItems,
-//                LocalDateTime.now(),
-                LocalDateTime.parse("2025-11-23T11:10:01")
-                //LocalDateTime.now(ZoneId.of("UTC"))
-        );
-        var keyValue3 = KeyValue.pair(order3.locationId(), order3);
-
-        var order4 = new Order(12345, "store_4567",
-                new BigDecimal("15.00"),
-                OrderType.RESTAURANT,
-                orderItems,
-//                LocalDateTime.now()
-                LocalDateTime.parse("2025-11-23T11:10:01")
-                //LocalDateTime.now(ZoneId.of("UTC"))
-        );
-        var keyValue4 = KeyValue.pair(order4.locationId(), order4);
+        var keyValue2 = KeyValue.pair(order2.orderId().toString(), order2);
 
         return List.of(
                 keyValue1,
                 keyValue2
-//                keyValue3,
-//                keyValue4
         );
     }
 }

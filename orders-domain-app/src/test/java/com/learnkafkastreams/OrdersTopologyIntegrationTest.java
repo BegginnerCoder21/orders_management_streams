@@ -5,6 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnkafkastreams.domain.Order;
 import com.learnkafkastreams.domain.OrderLineItem;
 import com.learnkafkastreams.domain.OrderType;
+import com.learnkafkastreams.service.OrderCountService;
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,23 +17,30 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.apache.kafka.streams.KeyValue;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static com.learnkafkastreams.util.ProducerUtil.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
+@SpringBootTest(classes = OrdersDomainAppApplication.class)
 @EmbeddedKafka(topics = {ORDERS, STORES})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TestPropertySource(
         properties = {
                 "spring.kafka.streams.bootstrap-servers=${spring.embedded.kafka.brokers}",
                 "spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}"
         }
 )
-public class OrdersTopologyIntegrationTest {
+class OrdersTopologyIntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(OrdersTopologyIntegrationTest.class);
 
@@ -40,6 +52,49 @@ public class OrdersTopologyIntegrationTest {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    OrderCountService orderCountService;
+
+    @BeforeEach
+    void setUp()
+    {
+        streamsBuilderFactoryBean.start();
+    }
+
+    @AfterEach
+    void tearDown() {
+        Objects.requireNonNull(streamsBuilderFactoryBean.getKafkaStreams()).close();
+        streamsBuilderFactoryBean.getKafkaStreams().cleanUp();
+    }
+
+    @Test
+    void orderCount()
+    {
+        //given
+        publishOrders();
+
+        //when
+
+        //then
+        Awaitility
+                .await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollDelay(Duration.ofSeconds(1))
+                .ignoreExceptions()
+                .until( ()-> {
+                    var generalGeneralCountStore = this.orderCountService.getOrdersCount(GENERAL_ORDERS);
+                    log.info("general_orders_count_test: {}", generalGeneralCountStore);
+                    return generalGeneralCountStore.size();
+                }, equalTo(1));
+
+        var generalOrderCountStore = this.orderCountService.getOrdersCount(GENERAL_ORDERS);
+
+        assertEquals(1, generalOrderCountStore.getFirst().orderCount());
+        assertEquals("store_1234", generalOrderCountStore.getFirst().locationId());
+
+
+    }
 
     private void publishOrders()
     {
@@ -81,7 +136,7 @@ public class OrdersTopologyIntegrationTest {
                 LocalDateTime.parse("2025-11-23T11:10:01")
                 //LocalDateTime.now(ZoneId.of("UTC"))
         );
-        var keyValue1 = org.apache.kafka.streams.KeyValue.pair(order1.locationId(), order1);
+        var keyValue1 = KeyValue.pair(order1.orderId().toString(), order1);
 
         var order2 = new Order(54321, "store_1234",
                 new BigDecimal("15.00"),
@@ -91,33 +146,11 @@ public class OrdersTopologyIntegrationTest {
                 LocalDateTime.parse("2025-11-23T11:10:01")
                 //LocalDateTime.now(ZoneId.of("UTC"))
         );
-        var keyValue2 = org.apache.kafka.streams.KeyValue.pair(order2.locationId(), order2);
-
-        var order3 = new Order(12345, "store_4567",
-                new BigDecimal("27.00"),
-                OrderType.GENERAL,
-                orderItems,
-//                LocalDateTime.now(),
-                LocalDateTime.parse("2025-11-23T11:10:01")
-                //LocalDateTime.now(ZoneId.of("UTC"))
-        );
-        var keyValue3 = KeyValue.pair(order3.locationId(), order3);
-
-        var order4 = new Order(12345, "store_4567",
-                new BigDecimal("15.00"),
-                OrderType.RESTAURANT,
-                orderItems,
-//                LocalDateTime.now()
-                LocalDateTime.parse("2025-11-23T11:10:01")
-                //LocalDateTime.now(ZoneId.of("UTC"))
-        );
-        var keyValue4 = org.apache.kafka.streams.KeyValue.pair(order4.locationId(), order4);
+        var keyValue2 = KeyValue.pair(order2.orderId().toString(), order2);
 
         return List.of(
                 keyValue1,
                 keyValue2
-//                keyValue3,
-//                keyValue4
         );
     }
 }
