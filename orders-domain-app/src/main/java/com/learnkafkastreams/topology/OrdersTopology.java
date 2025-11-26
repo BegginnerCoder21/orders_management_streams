@@ -61,8 +61,8 @@ public class OrdersTopology {
 //                            aggregateOrderByCount(generalOrderStream, GENERAL_ORDERS_COUNT);
                             aggregateOrdersByCount(generalOrderStream, GENERAL_ORDERS_COUNT, storesTable);
                             aggregateOrdersByCountTimeWindow(generalOrderStream, GENERAL_ORDERS_COUNT_WINDOWS, storesTable);
-                            aggregateOrderByRevenue(generalOrderStream, GENERAL_ORDERS_REVENUE);
-//                            aggregateOrderByRevenueWithAddress(generalOrderStream, GENERAL_ORDERS_REVENUE, storesTable);
+//                            aggregateOrderByRevenue(generalOrderStream, GENERAL_ORDERS_REVENUE);
+                            aggregateOrderByRevenueWithAddress(generalOrderStream, GENERAL_ORDERS_REVENUE, storesTable);
                             aggregateOrderByRevenueWithAddressTimeWindow(generalOrderStream, GENERAL_ORDERS_REVENUE_WINDOWS, storesTable);
                         })
                 ).branch(restaurantPredicate,
@@ -77,9 +77,9 @@ public class OrdersTopology {
 //                                            .revenueSerdesUsingGeneric()));
 //                            aggregateOrderByCount(restaurantOrderStream, RESTAURANT_ORDERS_COUNT);
                             aggregateOrdersByCount(restaurantOrderStream, RESTAURANT_ORDERS_COUNT, storesTable);
-                            aggregateOrderByRevenue(restaurantOrderStream, RESTAURANT_ORDERS_REVENUE);
+//                            aggregateOrderByRevenue(restaurantOrderStream, RESTAURANT_ORDERS_REVENUE);
                             aggregateOrdersByCountTimeWindow(restaurantOrderStream, RESTAURANT_ORDERS_COUNT_WINDOWS, storesTable);
-//                            aggregateOrderByRevenueWithAddress(restaurantOrderStream, RESTAURANT_ORDERS_REVENUE, storesTable);
+                            aggregateOrderByRevenueWithAddress(restaurantOrderStream, RESTAURANT_ORDERS_REVENUE, storesTable);
                             aggregateOrderByRevenueWithAddressTimeWindow(restaurantOrderStream, RESTAURANT_ORDERS_REVENUE_WINDOWS, storesTable);
 
                         })

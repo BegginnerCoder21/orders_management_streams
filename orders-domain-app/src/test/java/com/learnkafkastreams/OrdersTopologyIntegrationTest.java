@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnkafkastreams.domain.Order;
 import com.learnkafkastreams.domain.OrderLineItem;
+import com.learnkafkastreams.domain.OrderRevenueDTO;
 import com.learnkafkastreams.domain.OrderType;
 import com.learnkafkastreams.service.OrderCountService;
+import com.learnkafkastreams.service.OrderRevenueService;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,6 +58,9 @@ class OrdersTopologyIntegrationTest {
     @Autowired
     OrderCountService orderCountService;
 
+    @Autowired
+    OrderRevenueService orderRevenueService;
+
     @BeforeEach
     void setUp()
     {
@@ -96,7 +101,7 @@ class OrdersTopologyIntegrationTest {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
-                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS).size(), equalTo(1));
+                .until( ()-> this.orderCountService.getOrdersCount(RESTAURANT_ORDERS).size(), equalTo(1));
 
         var restaurantOrderCountStore = this.orderCountService.getOrdersCount(RESTAURANT_ORDERS);
 
@@ -105,6 +110,79 @@ class OrdersTopologyIntegrationTest {
 
     }
 
+    @Test
+    void orderRevenue()
+    {
+        //given
+        publishOrders();
+
+        //when
+
+        //then
+        Awaitility
+                .await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollDelay(Duration.ofSeconds(1))
+                .ignoreExceptions()
+                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS).size(), equalTo(1));
+
+        var generalOrderCountStore = this.orderRevenueService.getOrdersRevenue(GENERAL_ORDERS);
+
+        assertThat(generalOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.GENERAL);
+        assertThat(generalOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
+
+        Awaitility
+                .await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollDelay(Duration.ofSeconds(1))
+                .ignoreExceptions()
+                .until( ()-> this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS).size(), equalTo(1));
+
+        List<OrderRevenueDTO> restaurantOrderCountStore = this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS);
+
+        assertThat(restaurantOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.RESTAURANT);
+        assertThat(restaurantOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
+
+    }
+
+    @Test
+    void orderRevenue_multipleOrders()
+    {
+        //given
+        publishOrders();
+        publishOrders();
+        publishOrders();
+
+        //when
+
+        //then
+        Awaitility
+                .await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollDelay(Duration.ofSeconds(1))
+                .ignoreExceptions()
+                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS).size(), equalTo(1));
+
+        var generalOrderCountStore = this.orderRevenueService.getOrdersRevenue(GENERAL_ORDERS);
+
+        assertThat(generalOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.GENERAL);
+        assertThat(generalOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
+        assertThat(generalOrderCountStore.getFirst().totalRevenue().runningRevenue()).isEqualTo(new BigDecimal("81.00"));
+
+        Awaitility
+                .await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollDelay(Duration.ofSeconds(1))
+                .ignoreExceptions()
+                .until( ()-> this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS).size(), equalTo(1));
+
+        List<OrderRevenueDTO> restaurantOrderCountStore = this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS);
+
+        assertThat(restaurantOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.RESTAURANT);
+        assertThat(restaurantOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
+        assertThat(restaurantOrderCountStore.getFirst().totalRevenue().runningRevenue()).isEqualTo(new BigDecimal("45.00"));
+
+    }
 
     private void publishOrders()
     {
