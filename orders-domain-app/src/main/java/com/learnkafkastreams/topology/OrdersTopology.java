@@ -111,8 +111,9 @@ public class OrdersTopology {
 
     private static void aggregateOrdersByCountTimeWindow(KStream<String, Order> generalOrderStream, String storeName, KTable<String, Store> storeTable) {
 
-        Duration duration = Duration.ofSeconds(15);
-        TimeWindows timeWindows = TimeWindows.ofSizeWithNoGrace(duration);
+        Duration duration = Duration.ofSeconds(60);
+        Duration graceDuration = Duration.ofSeconds(15);
+        TimeWindows timeWindows = TimeWindows.ofSizeAndGrace(duration, graceDuration);
         var ordersCountPerStore = generalOrderStream
                 .map((key, value) -> KeyValue.pair(value.locationId(), value) )
                 .groupByKey(Grouped.with(Serdes.String(), new JsonSerde<Order>(Order.class)))
