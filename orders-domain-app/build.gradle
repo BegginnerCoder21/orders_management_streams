@@ -8,6 +8,11 @@ group = 'com.learnkafkastreams'
 version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
 
+springBoot {
+    mainClass = 'com.learnkafkastreams.OrdersDomainAppApplication'
+}
+
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
@@ -19,6 +24,11 @@ configurations {
 		extendsFrom annotationProcessor
 	}
 }
+
+test {
+    maxParallelForks = 1
+}
+
 
 repositories {
 	mavenCentral()

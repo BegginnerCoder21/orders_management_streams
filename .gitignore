@@ -4,6 +4,8 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+orders-kafka-streams8080/
+orders-kafka-streams8081/
 
 ### STS ###
 .apt_generated
