@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -24,9 +25,13 @@ import static com.learnkafkastreams.util.ProducerUtil.*;
 public class OrderCountService {
 
     private final OrderStoreService orderStoreService;
+    private final MetaDataService metaDataService;
+    @Value("${server.port}")
+    private Integer port;
 
-    public OrderCountService(OrderStoreService orderStoreService) {
+    public OrderCountService(OrderStoreService orderStoreService, MetaDataService metaDataService) {
         this.orderStoreService = orderStoreService;
+        this.metaDataService = metaDataService;
     }
 
     public List<OrderCountPerStoreDTO> getOrdersCount(String orderType) {
@@ -36,10 +41,29 @@ public class OrderCountService {
 
        Spliterator<KeyValue<String, Long>> spliterator = Spliterators.spliteratorUnknownSize(orders, 0);
 
+       this.retrieveDataFromOtherInstances(orderType);
        return StreamSupport
                .stream(spliterator, false)
                .map(keyValue -> new OrderCountPerStoreDTO(keyValue.key, keyValue.value))
                .toList();
+    }
+
+    private void retrieveDataFromOtherInstances(String orderType)
+    {
+        List<HostInfoDTO> otherHostsList = this.otherHosts();
+        log.info("otherHostsList: {} ", otherHostsList);
+        if(otherHostsList.isEmpty())
+        {
+
+        }
+    }
+
+    private List<HostInfoDTO> otherHosts() {
+
+       return metaDataService.getStreamMetaData()
+                .stream()
+                .filter((hostInfoDTO -> hostInfoDTO.port() != port))
+                .toList();
     }
 
     public OrderCountPerStoreDTO getOrderCountByLocationId(String orderType, String locationId)
