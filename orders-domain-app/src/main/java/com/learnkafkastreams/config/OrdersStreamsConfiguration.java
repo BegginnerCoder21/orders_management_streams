@@ -24,7 +24,6 @@ import org.springframework.kafka.streams.RecoveringDeserializationExceptionHandl
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import static com.learnkafkastreams.topology.OrdersTopology.orderTopology;
 import static com.learnkafkastreams.util.ProducerUtil.ORDERS;
 import static com.learnkafkastreams.util.ProducerUtil.STORES;
 
@@ -46,12 +45,6 @@ public class OrdersStreamsConfiguration {
     public OrdersStreamsConfiguration(KafkaProperties kafkaProperties, KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaProperties = kafkaProperties;
         this.kafkaTemplate = kafkaTemplate;
-    }
-
-    @Bean
-    public KStream<String, Order> ordersStream(StreamsBuilder streamsBuilder) {
-        orderTopology(streamsBuilder);
-        return streamsBuilder.stream(ORDERS);
     }
 
     @Bean(name = KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME)
