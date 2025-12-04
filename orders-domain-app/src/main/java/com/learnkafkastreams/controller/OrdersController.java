@@ -25,15 +25,21 @@ public class OrdersController {
 
     @GetMapping("count/{order_type}")
     public ResponseEntity<?> getOrderCount(@PathVariable("order_type") String orderType,
-                                           @RequestParam(value = "location_id", required = false) String locationId)
+                                           @RequestParam(value = "location_id", required = false) String locationId,
+                                           @RequestParam(value = "query_other_hosts", required = false) String queryOtherHosts)
     {
+
+        if(!StringUtils.hasText(queryOtherHosts))
+        {
+            queryOtherHosts = "true";//pour faire un appel vers les autres instances
+        }
         if(StringUtils.hasLength(locationId))
         {
             OrderCountPerStoreDTO orderCountPerStoreDTO = this.orderCountService.getOrderCountByLocationId(orderType, locationId);
 
             return ResponseEntity.ok(orderCountPerStoreDTO);
         }
-        List<OrderCountPerStoreDTO> orderCountPerStoreList = this.orderCountService.getOrdersCount(orderType);
+        List<OrderCountPerStoreDTO> orderCountPerStoreList = this.orderCountService.getOrdersCount(orderType, queryOtherHosts);
 
         return ResponseEntity.ok(orderCountPerStoreList);
     }

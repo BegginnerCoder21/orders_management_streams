@@ -88,9 +88,9 @@ class OrdersTopologyIntegrationTest {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
-                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS).size(), equalTo(1));
+                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS, "false").size(), equalTo(1));
 
-        var generalOrderCountStore = this.orderCountService.getOrdersCount(GENERAL_ORDERS);
+        var generalOrderCountStore = this.orderCountService.getOrdersCount(GENERAL_ORDERS, "false");
 
         assertThat(generalOrderCountStore.getFirst().orderCount()).isEqualTo(1);
         assertThat(generalOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
@@ -102,9 +102,9 @@ class OrdersTopologyIntegrationTest {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
-                .until( ()-> this.orderCountService.getOrdersCount(RESTAURANT_ORDERS).size(), equalTo(1));
+                .until( ()-> this.orderCountService.getOrdersCount(RESTAURANT_ORDERS, "false").size(), equalTo(1));
 
-        var restaurantOrderCountStore = this.orderCountService.getOrdersCount(RESTAURANT_ORDERS);
+        var restaurantOrderCountStore = this.orderCountService.getOrdersCount(RESTAURANT_ORDERS, "false");
 
         assertThat(restaurantOrderCountStore.getFirst().orderCount()).isEqualTo(1);
         assertThat(restaurantOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
@@ -125,7 +125,7 @@ class OrdersTopologyIntegrationTest {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
-                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS).size(), equalTo(1));
+                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS, "false").size(), equalTo(1));
 
         var generalOrderCountStore = this.orderRevenueService.getOrdersRevenue(GENERAL_ORDERS);
 
@@ -162,7 +162,7 @@ class OrdersTopologyIntegrationTest {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
-                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS).size(), equalTo(1));
+                .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS, "false").size(), equalTo(1));
 
         var generalOrderCountStore = this.orderRevenueService.getOrdersRevenue(GENERAL_ORDERS);
 
