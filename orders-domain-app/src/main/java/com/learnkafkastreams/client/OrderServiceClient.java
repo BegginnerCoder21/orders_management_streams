@@ -29,6 +29,8 @@ public class OrderServiceClient {
                 .buildAndExpand(orderType)
                 .toString();
 
+        log.info("retrieveOrdersCountByOrderType url: {}", uri);
+
         return webClient.get()
                 .uri(uri)
                 .retrieve()

@@ -44,8 +44,11 @@ public class OrderCountService {
                 .stream(spliterator, false)
                 .map(keyValue -> new OrderCountPerStoreDTO(keyValue.key, keyValue.value))
                 .toList();
+
        boolean convertQueryOtherHostsInBoolean = Boolean.parseBoolean(queryOtherHosts);
        List<OrderCountPerStoreDTO> orderCountPerStoreDTOList = this.retrieveDataFromOtherInstances(orderType, convertQueryOtherHostsInBoolean);
+
+       log.info("orderCountPerStoreDTOListCurrent : {}, orderCountPerStoreDTOList: {}", orderCountPerStoreDTOListCurrent, orderCountPerStoreDTOList);
 
        return Stream.of(orderCountPerStoreDTOListCurrent, orderCountPerStoreDTOList)
                .filter(Objects::nonNull)
