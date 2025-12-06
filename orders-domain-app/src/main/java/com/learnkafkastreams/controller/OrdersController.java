@@ -45,9 +45,17 @@ public class OrdersController {
     }
 
     @GetMapping("revenue/{order_type}")
-    public ResponseEntity<List<OrderRevenueDTO>> getOrderRevenue(@PathVariable("order_type") String orderType)
+    public ResponseEntity<List<OrderRevenueDTO>> getOrderRevenue(@PathVariable("order_type") String orderType,
+                                                                 @RequestParam(value = "query_other_hosts", required = false) String queryOtherHosts
+                                                                 )
     {
-        List<OrderRevenueDTO> ordersRevenue = this.orderRevenueService.getOrdersRevenue(orderType);
+        if(!StringUtils.hasText(queryOtherHosts))
+        {
+            queryOtherHosts = "true";//pour faire un appel vers les autres instances
+        }
+
+
+        List<OrderRevenueDTO> ordersRevenue = this.orderRevenueService.getOrdersRevenue(orderType, queryOtherHosts);
 
         return ResponseEntity.ok(ordersRevenue);
     }

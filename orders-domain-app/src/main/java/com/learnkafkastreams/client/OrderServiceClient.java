@@ -2,6 +2,7 @@ package com.learnkafkastreams.client;
 
 import com.learnkafkastreams.domain.HostInfoDTO;
 import com.learnkafkastreams.domain.OrderCountPerStoreDTO;
+import com.learnkafkastreams.domain.OrderRevenueDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -39,7 +40,7 @@ public class OrderServiceClient {
                 .block();
     }
 
-    public OrderCountPerStoreDTO retrieveOrdersCountByOrderTypeAndLocaltionId(HostInfoDTO hostInfoDTO, String locationId, String orderType) {
+    public OrderCountPerStoreDTO retrieveOrdersCountByOrderTypeAndLocationId(HostInfoDTO hostInfoDTO, String locationId, String orderType) {
 
         String basePath = "http://" + hostInfoDTO.host() + ":" + hostInfoDTO.port();
         String uri = UriComponentsBuilder
@@ -56,6 +57,26 @@ public class OrderServiceClient {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(OrderCountPerStoreDTO.class)
+                .block();
+    }
+
+    public List<OrderRevenueDTO> retrieveOrdersCountRevenueByOrderType(String orderType, HostInfoDTO hostInfoDTO)
+    {
+        String basePath = "http://" + hostInfoDTO.host() + ":" + hostInfoDTO.port();
+        String uri = UriComponentsBuilder
+                .fromUriString(basePath)
+                .path("/v1/orders/revenue/{order_type}")
+                .queryParam("query_other_hosts", "false")
+                .buildAndExpand(orderType)
+                .toString();
+
+        log.info("retrieveOrdersCountRevenueByOrderType url: {}", uri);
+
+        return webClient.get()
+                .uri(uri)
+                .retrieve()
+                .bodyToFlux(OrderRevenueDTO.class)
+                .collectList()
                 .block();
     }
 }

@@ -71,7 +71,7 @@ public class OrderCountService {
         return Collections.emptyList();
     }
 
-    private List<HostInfoDTO> otherHosts() {
+    public List<HostInfoDTO> otherHosts() {
 
        return metaDataService.getStreamMetaData()
                 .stream()
@@ -106,7 +106,7 @@ public class OrderCountService {
         HostInfoDTO hostInfoDTO = new HostInfoDTO(hostInfoDTOWithKey.host(), hostInfoDTOWithKey.port());
 
         //appel https vers instance qui contient la donnée
-        return this.orderServiceClient.retrieveOrdersCountByOrderTypeAndLocaltionId(hostInfoDTO, locationId, orderType);
+        return this.orderServiceClient.retrieveOrdersCountByOrderTypeAndLocationId(hostInfoDTO, locationId, orderType);
     }
 
     public String mapOrderCountStoreName(String orderType) {

@@ -127,7 +127,7 @@ class OrdersTopologyIntegrationTest {
                 .ignoreExceptions()
                 .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS, "false").size(), equalTo(1));
 
-        var generalOrderCountStore = this.orderRevenueService.getOrdersRevenue(GENERAL_ORDERS);
+        var generalOrderCountStore = this.orderRevenueService.getOrdersRevenue(GENERAL_ORDERS, "false");
 
         assertThat(generalOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.GENERAL);
         assertThat(generalOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
@@ -137,9 +137,9 @@ class OrdersTopologyIntegrationTest {
                 .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
-                .until( ()-> this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS).size(), equalTo(1));
+                .until( ()-> this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS, "false").size(), equalTo(1));
 
-        List<OrderRevenueDTO> restaurantOrderCountStore = this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS);
+        List<OrderRevenueDTO> restaurantOrderCountStore = this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS, "false");
 
         assertThat(restaurantOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.RESTAURANT);
         assertThat(restaurantOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
@@ -164,7 +164,7 @@ class OrdersTopologyIntegrationTest {
                 .ignoreExceptions()
                 .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS, "false").size(), equalTo(1));
 
-        var generalOrderCountStore = this.orderRevenueService.getOrdersRevenue(GENERAL_ORDERS);
+        var generalOrderCountStore = this.orderRevenueService.getOrdersRevenue(GENERAL_ORDERS, "false");
 
         assertThat(generalOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.GENERAL);
         assertThat(generalOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
@@ -175,9 +175,9 @@ class OrdersTopologyIntegrationTest {
                 .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
-                .until( ()-> this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS).size(), equalTo(1));
+                .until( ()-> this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS, "false").size(), equalTo(1));
 
-        List<OrderRevenueDTO> restaurantOrderCountStore = this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS);
+        List<OrderRevenueDTO> restaurantOrderCountStore = this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS, "false");
 
         assertThat(restaurantOrderCountStore.getFirst().orderType()).isEqualTo(OrderType.RESTAURANT);
         assertThat(restaurantOrderCountStore.getFirst().locationId()).isEqualTo("store_1234");
