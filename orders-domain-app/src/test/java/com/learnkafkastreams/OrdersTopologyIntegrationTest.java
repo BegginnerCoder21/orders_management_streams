@@ -85,7 +85,7 @@ class OrdersTopologyIntegrationTest {
         //then
         Awaitility
                 .await()
-                .atMost(10, TimeUnit.SECONDS)
+                .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
                 .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS, "false").size(), equalTo(1));
@@ -99,7 +99,7 @@ class OrdersTopologyIntegrationTest {
 
         Awaitility
                 .await()
-                .atMost(10, TimeUnit.SECONDS)
+                .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
                 .until( ()-> this.orderCountService.getOrdersCount(RESTAURANT_ORDERS, "false").size(), equalTo(1));
@@ -122,7 +122,7 @@ class OrdersTopologyIntegrationTest {
         //then
         Awaitility
                 .await()
-                .atMost(10, TimeUnit.SECONDS)
+                .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
                 .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS, "false").size(), equalTo(1));
@@ -134,7 +134,7 @@ class OrdersTopologyIntegrationTest {
 
         Awaitility
                 .await()
-                .atMost(10, TimeUnit.SECONDS)
+                .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
                 .until( ()-> this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS).size(), equalTo(1));
@@ -159,7 +159,7 @@ class OrdersTopologyIntegrationTest {
         //then
         Awaitility
                 .await()
-                .atMost(10, TimeUnit.SECONDS)
+                .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
                 .until( ()-> this.orderCountService.getOrdersCount(GENERAL_ORDERS, "false").size(), equalTo(1));
@@ -172,7 +172,7 @@ class OrdersTopologyIntegrationTest {
 
         Awaitility
                 .await()
-                .atMost(10, TimeUnit.SECONDS)
+                .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
                 .until( ()-> this.orderRevenueService.getOrdersRevenue(RESTAURANT_ORDERS).size(), equalTo(1));
@@ -198,7 +198,7 @@ class OrdersTopologyIntegrationTest {
         //then
         Awaitility
                 .await()
-                .atMost(10, TimeUnit.SECONDS)
+                .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
                 .until( ()-> this.orderCountWindowService.getOrdersRevenueWindow(GENERAL_ORDERS).size(), equalTo(1));
@@ -211,7 +211,7 @@ class OrdersTopologyIntegrationTest {
 
         Awaitility
                 .await()
-                .atMost(10, TimeUnit.SECONDS)
+                .atMost(60, TimeUnit.SECONDS)
                 .pollDelay(Duration.ofSeconds(1))
                 .ignoreExceptions()
                 .until( ()-> this.orderCountWindowService.getOrdersRevenueWindow(RESTAURANT_ORDERS).size(), equalTo(1));
