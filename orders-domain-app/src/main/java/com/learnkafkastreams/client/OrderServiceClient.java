@@ -38,4 +38,24 @@ public class OrderServiceClient {
                 .collectList()
                 .block();
     }
+
+    public OrderCountPerStoreDTO retrieveOrdersCountByOrderTypeAndLocaltionId(HostInfoDTO hostInfoDTO, String locationId, String orderType) {
+
+        String basePath = "http://" + hostInfoDTO.host() + ":" + hostInfoDTO.port();
+        String uri = UriComponentsBuilder
+                .fromUriString(basePath)
+                .path("/v1/orders/count/{order_type}")
+                .queryParam("query_other_hosts", "false")
+                .queryParam("location_id", locationId)
+                .buildAndExpand(orderType)
+                .toString();
+
+        log.info("retrieveOrdersCountByOrderType url: {}", uri);
+
+        return webClient.get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(OrderCountPerStoreDTO.class)
+                .block();
+    }
 }

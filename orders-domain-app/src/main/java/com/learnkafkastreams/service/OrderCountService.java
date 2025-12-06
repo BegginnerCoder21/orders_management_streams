@@ -85,19 +85,28 @@ public class OrderCountService {
 
         HostInfoDTOWithKey hostInfoDTOWithKey =  this.metaDataService.getStreamMetaData(storeName, locationId);
 
+        log.info("hostInfoDTOWithKey: {}", hostInfoDTOWithKey);
+
         if(hostInfoDTOWithKey == null) return null;
 
         if(hostInfoDTOWithKey.port() == port)
         {
+            log.info("Requête de donnée sur l'instance courante");
             ReadOnlyKeyValueStore<String, Long> orderTypeCount =  this.getOrderTypeCount(orderType);
 
-            var orderCountReceived = orderTypeCount.get(locationId);
+            Long orderCountReceived = orderTypeCount.get(locationId);
+
+            if(orderCountReceived == null) return null;
 
             return new OrderCountPerStoreDTO(locationId, orderCountReceived);
         }
 
+        log.info("Requête de donnée sur l'instance distant");
+
+        HostInfoDTO hostInfoDTO = new HostInfoDTO(hostInfoDTOWithKey.host(), hostInfoDTOWithKey.port());
+
         //appel https vers instance qui contient la donnée
-        return null;
+        return this.orderServiceClient.retrieveOrdersCountByOrderTypeAndLocaltionId(hostInfoDTO, locationId, orderType);
     }
 
     public String mapOrderCountStoreName(String orderType) {
