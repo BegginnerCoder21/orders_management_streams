@@ -81,12 +81,31 @@ public class OrderCountService {
 
     public OrderCountPerStoreDTO getOrderCountByLocationId(String orderType, String locationId)
     {
-        ReadOnlyKeyValueStore<String, Long> orderTypeCount =  this.getOrderTypeCount(orderType);
+        String storeName = this.mapOrderCountStoreName(orderType);
 
-        var orderCountReceived = orderTypeCount.get(locationId);
+        HostInfoDTOWithKey hostInfoDTOWithKey =  this.metaDataService.getStreamMetaData(storeName, locationId);
 
-        return new OrderCountPerStoreDTO(locationId, orderCountReceived);
+        if(hostInfoDTOWithKey == null) return null;
 
+        if(hostInfoDTOWithKey.port() == port)
+        {
+            ReadOnlyKeyValueStore<String, Long> orderTypeCount =  this.getOrderTypeCount(orderType);
+
+            var orderCountReceived = orderTypeCount.get(locationId);
+
+            return new OrderCountPerStoreDTO(locationId, orderCountReceived);
+        }
+
+        //appel https vers instance qui contient la donnée
+        return null;
+    }
+
+    public String mapOrderCountStoreName(String orderType) {
+        return switch (orderType) {
+            case GENERAL_ORDERS -> GENERAL_ORDERS_COUNT;
+            case RESTAURANT_ORDERS -> RESTAURANT_ORDERS_COUNT;
+            default -> throw new IllegalStateException("Option de commande non valide");
+        };
     }
 
     public ReadOnlyKeyValueStore<String, Long> getOrderTypeCount(String storeName) {

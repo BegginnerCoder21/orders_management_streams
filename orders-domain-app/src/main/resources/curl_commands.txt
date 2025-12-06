@@ -110,3 +110,6 @@ curl -i http://localhost:8080/v1/orders/windows/revenue/general_orders
 
 Sample JSON: 06-orders-revenue-windows.json
 DTO : OrdersRevenuePerStoreByWindows
+
+java -jar orders-domain-app/build/libs/orders-domain-app-0.0.1-SNAPSHOT.jar
+java -jar -Dserver.port=8081 orders-domain-app/build/libs/orders-domain-app-0.0.1-SNAPSHOT.jar
