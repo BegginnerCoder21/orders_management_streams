@@ -133,12 +133,12 @@ public class OrderCountService {
                         orderCountPerStoreDTO.orderCount(),
                         orderType);
 
-        List<AllOrdersCountPerStoreDTO> generalOrderCount =  this.getOrdersCount(GENERAL_ORDERS, "false")
+        List<AllOrdersCountPerStoreDTO> generalOrderCount =  this.getOrdersCount(GENERAL_ORDERS, "true")
                 .stream()
                 .map((orderCountPerStoreDTO -> mapper.apply(orderCountPerStoreDTO, GENERAL)))
                 .toList();
 
-        List<AllOrdersCountPerStoreDTO> restaurantOrderCount =  this.getOrdersCount(RESTAURANT_ORDERS, "false")
+        List<AllOrdersCountPerStoreDTO> restaurantOrderCount =  this.getOrdersCount(RESTAURANT_ORDERS, "true")
                 .stream()
                 .map((orderCountPerStoreDTO -> mapper.apply(orderCountPerStoreDTO, RESTAURANT)))
                 .toList();
